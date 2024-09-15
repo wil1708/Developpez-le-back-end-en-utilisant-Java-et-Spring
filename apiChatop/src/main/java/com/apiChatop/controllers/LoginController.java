@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @RestController
@@ -29,14 +30,19 @@ public class LoginController {
     private UserService userService;
 
     @PostMapping("/api/auth/login")
-    public String getToken(@RequestBody Map<String, String> loginData) {
+    public ResponseEntity<Map<String, String>> getToken(@RequestBody Map<String, String> loginData) {
         try {
             Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(loginData.get("name"), loginData.get("password"))
+                    new UsernamePasswordAuthenticationToken(loginData.get("login"), loginData.get("password"))
             );
-            return jwtService.generateToken(authentication);
+            String token = jwtService.generateToken(authentication);
+            Map<String, String> response = new HashMap<>();
+            response.put("token", token);
+            return ResponseEntity.status(HttpStatus.OK).body(response);
         } catch (AuthenticationException e) {
-            throw new RuntimeException("Invalid login credentials");
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", "Invalid login credentials");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
         }
     }
 
