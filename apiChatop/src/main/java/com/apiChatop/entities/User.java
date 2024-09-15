@@ -1,6 +1,8 @@
 package com.apiChatop.entities;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.OneToOne;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -15,5 +17,8 @@ public class User extends BaseEntity implements Serializable {
     private String email;
 
     private String password;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    private TimestampedEntity timestampedEntity;
 
 }
