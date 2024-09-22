@@ -16,7 +16,7 @@ public class MessageController {
     @Autowired
     private MessageService messageService;
 
-    @PostMapping("api/messages/")
+    @PostMapping("api/messages")
     public ResponseEntity<String> createMessage(@RequestHeader("Authorization") String token,
                                                 @RequestBody MessageDto messageDto) {
         try {

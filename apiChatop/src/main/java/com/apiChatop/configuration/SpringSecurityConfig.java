@@ -70,6 +70,7 @@ public class SpringSecurityConfig implements WebMvcConfigurer {
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/pictures/**")
-                .addResourceLocations("classpath:/static/pictures/");
+                //.addResourceLocations("classpath:/static/pictures/");
+                .addResourceLocations("file:C:/Users/William/IdeaProjects/apiChatop/apiChatop/src/main/resources/static/pictures/");
     }
 }

@@ -29,7 +29,7 @@ public class RentalController {
     @Autowired
     private UserService userService;
 
-    private static final String UPLOAD_DIR = "src/main/resources/static/pictures/";
+    private static final String UPLOAD_DIR = "C:\\Users\\William\\IdeaProjects\\apiChatop\\apiChatop\\src\\main\\resources\\static\\pictures";
 
     @Value("${server.base-url}")
     private String baseUrl;
@@ -58,9 +58,20 @@ public class RentalController {
         return ResponseEntity.ok(response);
     }
 
+//    @GetMapping("api/rentals/{id}")
+//    public ResponseEntity<RentalDto> getRentalById(@PathVariable Long id) {
+//        RentalDto rental = rentalService.findRentalById(id);
+//        return ResponseEntity.ok(rental);
+//    }
+
     @GetMapping("api/rentals/{id}")
     public ResponseEntity<RentalDto> getRentalById(@PathVariable Long id) {
         RentalDto rental = rentalService.findRentalById(id);
+        String baseUrl = "http://localhost:8080"; // Adjust this if your base URL is different
+
+        // Set the full URL for the picture
+        rental.setPicture(baseUrl + rental.getPicture());
+
         return ResponseEntity.ok(rental);
     }
 
@@ -72,6 +83,8 @@ public class RentalController {
                                                      @RequestParam("description") String description,
                                                      @RequestParam("picture") MultipartFile picture) {
         try {
+            System.out.println("Received file: " + picture.getOriginalFilename());
+            System.out.println("File size: " + picture.getSize());
             Path uploadDir = Paths.get(UPLOAD_DIR);
             if (!Files.exists(uploadDir)) {
                 Files.createDirectories(uploadDir);
@@ -85,7 +98,8 @@ public class RentalController {
             // Save the picture to the specified directory
             String fileName = picture.getOriginalFilename();
             Path filePath = uploadDir.resolve(fileName);
-            Files.write(filePath, picture.getBytes());
+            //Files.write(filePath, picture.getBytes());
+            picture.transferTo(filePath.toFile());
 
             UserDto userDto = userService.findUserByToken(token);
             Long ownerId = userDto.getId();
