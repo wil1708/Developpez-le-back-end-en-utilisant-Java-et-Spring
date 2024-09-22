@@ -10,7 +10,10 @@ import java.io.Serializable;
 public class UserDto extends BaseEntityDto implements Serializable {
 
     private String name;
+
     private String email;
-    private String createdAt;
-    private String updatedAt;
+
+    private String created_at;
+
+    private String updated_at;
 }

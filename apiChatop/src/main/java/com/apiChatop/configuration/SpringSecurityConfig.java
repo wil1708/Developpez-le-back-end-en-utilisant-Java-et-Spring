@@ -18,11 +18,13 @@ import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import javax.crypto.spec.SecretKeySpec;
 
 @Configuration
-public class SpringSecurityConfig {
+public class SpringSecurityConfig implements WebMvcConfigurer {
 
     @Value("${jwt.secret}")
     private String jwtKey;
@@ -36,6 +38,7 @@ public class SpringSecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth.requestMatchers("/api/auth/login").permitAll()
                         .requestMatchers("/api/auth/register").permitAll()
+                        .requestMatchers("/pictures/**").permitAll() // Allow access to pictures
                         .anyRequest().authenticated())
                 .oauth2ResourceServer((oauth2) -> oauth2.jwt(Customizer.withDefaults()))
                 .httpBasic(Customizer.withDefaults()).build();
@@ -62,5 +65,11 @@ public class SpringSecurityConfig {
         AuthenticationManagerBuilder authenticationManagerBuilder = http.getSharedObject(AuthenticationManagerBuilder.class);
         authenticationManagerBuilder.userDetailsService(customUserDetailsService).passwordEncoder(bCryptPasswordEncoder);
         return authenticationManagerBuilder.build();
+    }
+
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        registry.addResourceHandler("/pictures/**")
+                .addResourceLocations("classpath:/static/pictures/");
     }
 }

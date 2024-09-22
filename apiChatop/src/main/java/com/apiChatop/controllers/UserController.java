@@ -1,11 +1,8 @@
 package com.apiChatop.controllers;
 
 import com.apiChatop.dtos.UserDto;
-import com.apiChatop.entities.User;
 import com.apiChatop.mapper.DtoMapper;
-import com.apiChatop.services.JWTService;
 import com.apiChatop.services.UserService;
-import io.jsonwebtoken.Claims;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,16 +11,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Optional;
-
 @RestController
 public class UserController {
 
     @Autowired
     UserService userService;
-
-    @Autowired
-    private JWTService jwtService;
 
     @GetMapping("/api/user/{id}")
     public ResponseEntity<UserDto> getUser(@PathVariable Long id) {
@@ -37,20 +29,10 @@ public class UserController {
 
     @GetMapping("/api/auth/me")
     public ResponseEntity<UserDto> getUserByToken(@RequestHeader("Authorization") String token) {
-        if (token.startsWith("Bearer ")) {
-            token = token.substring(7);
-        }
-
-        Claims claims = jwtService.parseToken(token);
-
-        String username = claims.getSubject();
-        Optional<User> userOptional = userService.findUserByUsername(username);
-
-        if (userOptional.isPresent()) {
-            User user = userOptional.get();
-            UserDto userDto = DtoMapper.INSTANCE.userToUserDto(user);
+        try {
+            UserDto userDto = userService.findUserByToken(token);
             return ResponseEntity.status(HttpStatus.OK).body(userDto);
-        } else {
+        } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
     }

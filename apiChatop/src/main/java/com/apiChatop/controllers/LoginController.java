@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -33,7 +34,7 @@ public class LoginController {
     public ResponseEntity<Map<String, String>> getToken(@RequestBody Map<String, String> loginData) {
         try {
             Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(loginData.get("login"), loginData.get("password"))
+                    new UsernamePasswordAuthenticationToken(loginData.get("email"), loginData.get("password"))
             );
             String token = jwtService.generateToken(authentication);
             Map<String, String> response = new HashMap<>();
@@ -49,6 +50,12 @@ public class LoginController {
     @PostMapping("api/auth/register")
     public ResponseEntity<String> register(@RequestBody User user) {
         try {
+            ArrayList<User> users = userService.findAllUsers();
+            for (User u : users) {
+                if (u.getEmail().equals(user.getEmail())) {
+                    return ResponseEntity.status(HttpStatus.CONFLICT).body("Email already in use");
+                }
+            }
             userService.save(user);
             return ResponseEntity.status(HttpStatus.CREATED).body("User created successfully");
         } catch (Exception e) {
