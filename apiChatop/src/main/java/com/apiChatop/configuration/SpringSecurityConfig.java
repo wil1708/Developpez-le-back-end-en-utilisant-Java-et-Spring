@@ -32,13 +32,21 @@ public class SpringSecurityConfig implements WebMvcConfigurer {
     @Autowired
     private CustomUserDetailsService customUserDetailsService;
 
+    /**
+     * Configuration d'une chaîne de filtres autorisant ou non certaines requêtes avec ou sans authentification
+     * @param http
+     * @return une chaîne de filtres
+     * @throws Exception
+     */
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http.csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> auth.requestMatchers("/api/auth/login").permitAll()
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/auth/login").permitAll()
                         .requestMatchers("/api/auth/register").permitAll()
-                        .requestMatchers("/pictures/**").permitAll() // Allow access to pictures
+                        .requestMatchers("/pictures/**").permitAll()
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .anyRequest().authenticated())
                 .oauth2ResourceServer((oauth2) -> oauth2.jwt(Customizer.withDefaults()))
                 .httpBasic(Customizer.withDefaults()).build();
@@ -60,6 +68,13 @@ public class SpringSecurityConfig implements WebMvcConfigurer {
         return new BCryptPasswordEncoder();
     }
 
+    /**
+     * Méthode permettant de configurer un bean AuthenticationManager utilisé ailleurs dans l'application pour gérer les utilisateurs en lien avec un CustomUserDetailsService
+      * @param http
+     * @param bCryptPasswordEncoder
+     * @return un Autt
+     * @throws Exception
+     */
     @Bean
     public AuthenticationManager authenticationManager(HttpSecurity http, BCryptPasswordEncoder bCryptPasswordEncoder) throws Exception {
         AuthenticationManagerBuilder authenticationManagerBuilder = http.getSharedObject(AuthenticationManagerBuilder.class);
@@ -67,10 +82,13 @@ public class SpringSecurityConfig implements WebMvcConfigurer {
         return authenticationManagerBuilder.build();
     }
 
+    /**
+     * Méthode permettant de définir un emplacement dans l'API pour la sauvegarde d'images
+     * @param registry
+     */
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/pictures/**")
-                //.addResourceLocations("classpath:/static/pictures/");
-                .addResourceLocations("file:C:/Users/William/IdeaProjects/apiChatop/apiChatop/src/main/resources/static/pictures/");
+                .addResourceLocations("file:apiChatop/src/main/resources/static/pictures/");
     }
 }

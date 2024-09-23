@@ -18,7 +18,6 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-
         com.apiChatop.entities.User user = userRepository.findByEmail(username);
 
         return new User(user.getEmail(), user.getPassword(), Collections.emptyList());

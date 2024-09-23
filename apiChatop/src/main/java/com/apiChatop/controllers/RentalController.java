@@ -29,22 +29,21 @@ public class RentalController {
     @Autowired
     private UserService userService;
 
-    private static final String UPLOAD_DIR = "C:\\Users\\William\\IdeaProjects\\apiChatop\\apiChatop\\src\\main\\resources\\static\\pictures";
+    /**
+     * Chemin relatif pour la sauvegarde des images lors de la création d'un Rental
+     */
+    private static final String UPLOAD_DIR = "apiChatop/src/main/resources/static/pictures";
 
+    /**
+     * Correspond à http://localhost:8080 (voir application.properties)
+     */
     @Value("${server.base-url}")
     private String baseUrl;
 
-//    @GetMapping("api/rentals")
-//    public ResponseEntity<List<RentalDto>> getAllRentals() {
-//        List<RentalDto> rentals = rentalService.findAllRentals();
-//        String baseUrl = "http://localhost:8080"; // Adjust this if your base URL is different
-//
-//        rentals.forEach(rental -> {
-//            rental.setPicture(baseUrl + rental.getPicture());
-//        });
-//        return ResponseEntity.ok(rentals);
-//    }
-
+    /**
+     * Méthode d'afficher une liste de rentals
+     * @return un statut réponse 200
+     */
     @GetMapping("/api/rentals")
     public ResponseEntity<Map<String, List<RentalDto>>> getAllRentals() {
         List<RentalDto> rentals = rentalService.findAllRentals();
@@ -58,12 +57,11 @@ public class RentalController {
         return ResponseEntity.ok(response);
     }
 
-//    @GetMapping("api/rentals/{id}")
-//    public ResponseEntity<RentalDto> getRentalById(@PathVariable Long id) {
-//        RentalDto rental = rentalService.findRentalById(id);
-//        return ResponseEntity.ok(rental);
-//    }
-
+    /**
+     * Méthode pour obtenir un rental par son id
+     * @param id
+     * @return un statut réponse 200 et le rental trouvé
+     */
     @GetMapping("api/rentals/{id}")
     public ResponseEntity<RentalDto> getRentalById(@PathVariable Long id) {
         RentalDto rental = rentalService.findRentalById(id);
@@ -75,6 +73,16 @@ public class RentalController {
         return ResponseEntity.ok(rental);
     }
 
+    /**
+     * Méthode de création d'un rental en base de donnée en vérifiant que la requête comporte bien une picture, et la sauvegarde dans l'API
+     * @param token
+     * @param name
+     * @param surface
+     * @param price
+     * @param description
+     * @param picture
+     * @return un statut réponse 201
+     */
     @PostMapping("api/rentals")
     public ResponseEntity<JsonResponse> createRental(@RequestHeader("Authorization") String token,
                                                      @RequestParam("name") String name,
@@ -98,7 +106,6 @@ public class RentalController {
             // Save the picture to the specified directory
             String fileName = picture.getOriginalFilename();
             Path filePath = uploadDir.resolve(fileName);
-            //Files.write(filePath, picture.getBytes());
             picture.transferTo(filePath.toFile());
 
             UserDto userDto = userService.findUserByToken(token);
@@ -109,7 +116,6 @@ public class RentalController {
             rentalDto.setSurface(surface);
             rentalDto.setPrice(price);
             rentalDto.setDescription(description);
-            //rentalDto.setPicture(filePath.toString());
             rentalDto.setPicture("/pictures/" + fileName);
 
             rentalService.saveOrUpdateRental(rentalDto, ownerId);
@@ -122,8 +128,16 @@ public class RentalController {
         }
     }
 
-
-
+    /**
+     * Méthode de modification d'un rental (name, surface, price ou description), après avoir vérifié que la requête provient bien du possesseur du rental
+     * @param token
+     * @param id
+     * @param name
+     * @param surface
+     * @param price
+     * @param description
+     * @return un statut réponse 200
+     */
     @PutMapping("api/rentals/{id}")
     public ResponseEntity<String> updateRental(@RequestHeader("Authorization") String token,
                                                @PathVariable Long id,

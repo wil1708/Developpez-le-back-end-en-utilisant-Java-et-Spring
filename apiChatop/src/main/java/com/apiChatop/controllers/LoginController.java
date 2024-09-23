@@ -30,6 +30,11 @@ public class LoginController {
     @Autowired
     private UserService userService;
 
+    /**
+     * Méthode de login
+     * @param loginData
+     * @return un token autorisant les requêtes vers l'API et un statut réponse 200
+     */
     @PostMapping("/api/auth/login")
     public ResponseEntity<Map<String, String>> getToken(@RequestBody Map<String, String> loginData) {
         try {
@@ -47,6 +52,11 @@ public class LoginController {
         }
     }
 
+    /**
+     * Méthode d'enregistrement d'un nouvel utilisateur en base de donnée après avoir vérifié que l'email saisi n'existe pas déjà
+     * @param user
+     * @return un statut réponse 201
+     */
     @PostMapping("api/auth/register")
     public ResponseEntity<String> register(@RequestBody User user) {
         try {

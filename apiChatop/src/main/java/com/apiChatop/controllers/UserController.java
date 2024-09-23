@@ -17,6 +17,11 @@ public class UserController {
     @Autowired
     UserService userService;
 
+    /**
+     * Méthode de récupération d'un User par son id
+     * @param id
+     * @return un statut réponse 200
+     */
     @GetMapping("/api/user/{id}")
     public ResponseEntity<UserDto> getUser(@PathVariable Long id) {
         return userService.findUserById(id)
@@ -27,6 +32,11 @@ public class UserController {
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
+    /**
+     * Méthode permettant de trouver l'identité d'un utilisateur en décodant un token
+     * @param token
+     * @return un statut réponse 200
+     */
     @GetMapping("/api/auth/me")
     public ResponseEntity<UserDto> getUserByToken(@RequestHeader("Authorization") String token) {
         try {

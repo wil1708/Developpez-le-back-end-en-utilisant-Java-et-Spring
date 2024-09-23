@@ -16,6 +16,12 @@ public class MessageController {
     @Autowired
     private MessageService messageService;
 
+    /**
+     * Méthode de création d'un message attaché à une maison de location
+     * @param token
+     * @param messageDto
+     * @return un statut réponse 201
+     */
     @PostMapping("api/messages")
     public ResponseEntity<String> createMessage(@RequestHeader("Authorization") String token,
                                                 @RequestBody MessageDto messageDto) {
