@@ -91,9 +91,9 @@ public class RentalController {
                                                      @RequestParam("description") String description,
                                                      @RequestParam("picture") MultipartFile picture) {
         try {
-            System.out.println("Received file: " + picture.getOriginalFilename());
-            System.out.println("File size: " + picture.getSize());
-            Path uploadDir = Paths.get(UPLOAD_DIR);
+            // Construct the absolute path
+            Path uploadDir = Paths.get(System.getProperty("user.dir"), "apiChatop", "src", "main", "resources", "static", "pictures");
+
             if (!Files.exists(uploadDir)) {
                 Files.createDirectories(uploadDir);
             }
@@ -104,7 +104,7 @@ public class RentalController {
             }
 
             // Save the picture to the specified directory
-            String fileName = picture.getOriginalFilename();
+            String fileName = Paths.get(picture.getOriginalFilename()).getFileName().toString(); // Ensure safe file name
             Path filePath = uploadDir.resolve(fileName);
             picture.transferTo(filePath.toFile());
 
@@ -122,11 +122,14 @@ public class RentalController {
 
             return ResponseEntity.status(HttpStatus.CREATED).body(new JsonResponse("Rental created successfully"));
         } catch (IOException e) {
+            e.printStackTrace(); // Log the stack trace
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new JsonResponse("Error saving picture"));
         } catch (Exception e) {
+            e.printStackTrace(); // Log the stack trace
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new JsonResponse("Error creating rental"));
         }
     }
+
 
     /**
      * Méthode de modification d'un rental (name, surface, price ou description), après avoir vérifié que la requête provient bien du possesseur du rental
