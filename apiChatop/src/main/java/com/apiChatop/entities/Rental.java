@@ -1,24 +1,30 @@
 package com.apiChatop.entities;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Entity;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
+
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Entity
-public class User extends BaseEntity implements Serializable {
+public class Rental extends BaseEntity implements Serializable {
 
     private String name;
 
-    private String email;
+    private float surface;
 
-    private String password;
+    private double price;
+
+    private String picture;
+
+    @Column(length = 1000)
+    private String description;
+
+    @ManyToOne
+    private User owner;
 
     @OneToOne(cascade = CascadeType.ALL)
     private TimestampedEntity timestampedEntity;
-
 }

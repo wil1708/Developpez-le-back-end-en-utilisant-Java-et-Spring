@@ -2,8 +2,14 @@ package com.apiChatop.repositories;
 
 import com.apiChatop.entities.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.lang.NonNull;
 
-public interface UserRepository extends JpaRepository<User, Integer> {
+import java.util.ArrayList;
+
+public interface UserRepository extends JpaRepository<User, Long> {
 
     public User findByEmail(String name);
+    public User findById(long id);
+    @NonNull
+    public ArrayList<User> findAll();
 }
