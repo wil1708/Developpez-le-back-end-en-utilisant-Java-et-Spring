@@ -85,22 +85,28 @@ public class RentalController {
      */
     @PostMapping("api/rentals")
     public ResponseEntity<JsonResponse> createRental(@RequestHeader("Authorization") String token,
-                                                     @RequestParam("name") String name,
-                                                     @RequestParam("surface") float surface,
-                                                     @RequestParam("price") double price,
-                                                     @RequestParam("description") String description,
-                                                     @RequestParam("picture") MultipartFile picture) {
+                                                     @RequestParam(value = "name", required = false) String name,
+                                                     @RequestParam(value = "surface", required = false) Float surface,
+                                                     @RequestParam(value = "price", required = false) Double price,
+                                                     @RequestParam(value = "description", required = false) String description,
+                                                     @RequestParam(value = "picture", required = false) MultipartFile picture) {
+        // Check for missing parameters
+        if (token == null || token.isBlank() ||
+                name == null || name.isBlank() ||
+                surface == null ||
+                price == null ||
+                description == null || description.isBlank() ||
+                picture == null || picture.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new JsonResponse("Missing parameters"));
+        }
+
+
         try {
             // Construct the absolute path
             Path uploadDir = Paths.get(System.getProperty("user.dir"), "apiChatop", "src", "main", "resources", "static", "pictures");
 
             if (!Files.exists(uploadDir)) {
                 Files.createDirectories(uploadDir);
-            }
-
-            // Check if the file is empty
-            if (picture.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new JsonResponse("File is empty"));
             }
 
             // Save the picture to the specified directory
@@ -121,14 +127,15 @@ public class RentalController {
             rentalService.saveOrUpdateRental(rentalDto, ownerId);
 
             return ResponseEntity.status(HttpStatus.CREATED).body(new JsonResponse("Rental created successfully"));
+
         } catch (IOException e) {
-            e.printStackTrace(); // Log the stack trace
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new JsonResponse("Error saving picture"));
+
         } catch (Exception e) {
-            e.printStackTrace(); // Log the stack trace
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new JsonResponse("Error creating rental"));
         }
     }
+
 
 
     /**
